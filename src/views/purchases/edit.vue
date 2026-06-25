@@ -1,0 +1,125 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { Save, ArrowLeft } from 'lucide-vue-next';
+import Card from '../../components/ui/Card.vue';
+import Button from '../../components/ui/Button.vue';
+import Input from '../../components/ui/Input.vue';
+import Select from '../../components/ui/Select.vue';
+import { showAlert } from '../../utils/alert';
+import { CrudService } from '../../services/crudService';
+import { EnumService } from '../../services/enumService';
+
+const router = useRouter();
+const route = useRoute();
+const apiService = new CrudService('purchases');
+const suppliersService = new CrudService('suppliers');
+
+const formData = ref({
+  title: '',
+  description: '',
+  purchase_date: '',
+  supplier_id: null,
+  invoice_id: null,
+  payments: [
+    { value: 0, payment_type: '', payment_status: '' }
+  ]
+});
+
+const isSubmitting = ref(false);
+
+const enums = ref<any>({ payment_types: [], payment_statuses: [] });
+const suppliers = ref<any[]>([]);
+
+onMounted(async () => {
+  try {
+    const enumData = await EnumService.getEnums();
+    enums.value = enumData;
+    
+    const suppliersData = await suppliersService.getAll();
+    suppliers.value = (Array.isArray(suppliersData) ? suppliersData : suppliersData.data || []).map((s: any) => ({
+      name: s.fantasy_name || s.legal_name,
+      value: s.id
+    }));
+    
+    const data = await apiService.getById(route.params.id as string);
+    
+    // Merge basic fields
+    formData.value.title = data.title || '';
+    formData.value.description = data.description || '';
+    formData.value.purchase_date = data.purchase_date || '';
+    formData.value.supplier_id = data.supplier_id || null;
+    formData.value.invoice_id = data.invoice_id || null;
+    
+    // Safely assign payments if exist
+    if (data.payments && data.payments.length > 0) {
+      formData.value.payments = data.payments;
+    }
+  } catch (error) {
+    showAlert.error('Erro ao carregar dados.');
+  }
+});
+
+const handleSave = async () => {
+  isSubmitting.value = true;
+    try {
+    const payload: any = { ...formData.value };
+    if (!payload.invoice_id) delete payload.invoice_id;
+    if (!payload.supplier_id) delete payload.supplier_id;
+
+    await apiService.update(route.params.id as string, payload);
+    showAlert.success('Compra atualizada com sucesso!');
+    setTimeout(() => router.push('/purchases'), 2000);
+  } catch (error: any) {
+    showAlert.error(error);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+</script>
+
+<template>
+  <div>
+        <div class="flex items-center justify-between mb-6">
+      <div class="flex gap-2">
+        <Button variant="secondary" size="sm" @click="router.push('/purchases')">
+          <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
+          Voltar
+        </Button>
+      </div>
+    </div>
+
+    <Card>
+      <template #header>
+        <h2 class="text-lg font-medium text-slate-800">Editar Compra</h2>
+      </template>
+
+      <form @submit.prevent="handleSave" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input v-model="formData.title" label="Título" type="text" />
+          <Input v-model="formData.description" label="Descrição" type="text" />
+          <Input v-model="formData.purchase_date" label="Data da Compra" type="date" />
+          <Select v-model="formData.supplier_id" label="Fornecedor" :options="suppliers" />
+          <Input v-model="formData.invoice_id" label="Nota" type="number" />
+        </div>
+
+        <div class="mt-6">
+          <h3 class="text-md font-medium text-slate-700 mb-4 border-b pb-2">Informações de Pagamento</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Input v-model="formData.payments[0].value" label="Valor" type="number" />
+            <Select v-model="formData.payments[0].payment_type" label="Tipo de Pagamento" :options="enums.payment_types" />
+            <Select v-model="formData.payments[0].payment_status" label="Status do Pagamento" :options="enums.payment_statuses" />
+          </div>
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+          <Button variant="danger" type="button" @click="router.push('/purchases')">Cancelar</Button>
+          <Button variant="primary" type="submit" :disabled="isSubmitting">
+            <template #icon><Save class="w-4 h-4 mr-2" /></template>
+            Atualizar
+          </Button>
+        </div>
+      </form>
+    </Card>
+  </div>
+</template>
