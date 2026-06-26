@@ -18,6 +18,9 @@ const item = ref<any>({});
 const schema = [
   { key: 'id', label: 'ID' },
   { key: 'name', label: 'Nome' },
+  { key: 'login', label: 'Login' },
+  { key: 'email', label: 'E-mail' },
+  { key: 'status', label: 'Status' },
   { key: 'created_at', label: 'Criado em' },
 ];
 

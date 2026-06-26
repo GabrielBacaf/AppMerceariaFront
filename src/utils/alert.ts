@@ -39,5 +39,17 @@ export const showAlert = {
       html: html ? `<div>${message}</div>${html}` : undefined,
       confirmButtonColor: '#3b82f6',
     });
+  },
+  confirm(title: string, text: string) {
+    return Swal.fire({
+      icon: 'warning',
+      title: title,
+      text: text,
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar'
+    });
   }
 };

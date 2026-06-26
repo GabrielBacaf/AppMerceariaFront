@@ -8,9 +8,23 @@ import Button from '../../components/ui/Button.vue';
 import { CrudService } from '../../services/crudService';
 import EditButton from '../../components/ui/EditButton.vue';
 import ShowButton from '../../components/ui/ShowButton.vue';
+import FilterCard from '../../components/crud/FilterCard.vue';
+import Input from '../../components/ui/Input.vue';
 
 const router = useRouter();
 const apiService = new CrudService('purchases');
+
+const filters = ref({
+  search: '',
+  date_start: '',
+  date_end: ''
+});
+
+const handleFilter = () => fetchData();
+const handleClear = () => {
+  filters.value = { search: '', date_start: '', date_end: '' };
+  fetchData();
+};
 
 const data = ref<any[]>([]);
 const total = ref(0);
@@ -19,7 +33,7 @@ const loading = ref(false);
 const fetchData = async () => {
   loading.value = true;
   try {
-    const res = await apiService.getAll();
+    const res = await apiService.getAll(filters.value);
     data.value = Array.isArray(res) ? res : (res.data || []);
     total.value = Array.isArray(res) ? res.length : (res.total || data.value.length);
   } catch (error) {
@@ -35,6 +49,12 @@ onMounted(() => fetchData());
 <template>
   <div class="space-y-6">
     <Breadcrumb :items="[{ name: 'Compras', to: '/purchases' }]" />
+
+    <FilterCard @filter="handleFilter" @clear="handleClear">
+      <Input v-model="filters.search" label="Buscar" placeholder="Título, status..." />
+      <Input v-model="filters.date_start" type="date" label="Data Inicial" />
+      <Input v-model="filters.date_end" type="date" label="Data Final" />
+    </FilterCard>
 
     <Card noPadding>
       <template #header>

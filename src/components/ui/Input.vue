@@ -34,7 +34,7 @@ const inputId = computed(() => `input-${Math.random().toString(36).substring(2, 
 
 <template>
   <div class="flex flex-col w-full">
-    <label v-if="label" :for="inputId" class="mb-1 text-sm font-medium text-slate-700">
+    <label v-if="label" :for="inputId" class="mb-1.5 text-[15px] font-semibold text-slate-700">
       {{ label }}
     </label>
     <div class="relative">
@@ -46,15 +46,15 @@ const inputId = computed(() => `input-${Math.random().toString(36).substring(2, 
         :placeholder="placeholder"
         :disabled="disabled"
         @input="updateValue"
-        class="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
+        class="flex h-11 w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-[15px] sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200"
         :class="[
-          error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300',
-          $slots.prefix ? 'pl-10' : '',
-          $slots.suffix ? 'pr-10' : ''
+          error ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 hover:border-slate-400',
+          $slots.prefix ? 'pl-11' : '',
+          $slots.suffix ? 'pr-11' : ''
         ]"
       />
       <slot name="suffix" />
     </div>
-    <span v-if="error" class="mt-1 text-sm text-red-500">{{ error }}</span>
+    <span v-if="error" class="mt-1.5 text-[14px] font-medium text-red-500">{{ error }}</span>
   </div>
 </template>

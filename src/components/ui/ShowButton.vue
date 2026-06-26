@@ -10,16 +10,16 @@ defineProps<{
   <RouterLink 
     v-if="to"
     :to="to" 
-    class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
     title="Visualizar"
   >
-    <Eye class="w-4 h-4" />
+    <Eye class="w-4 h-4" stroke-width="2.5" />
   </RouterLink>
   <button 
     v-else
-    class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
     title="Visualizar"
   >
-    <Eye class="w-4 h-4" />
+    <Eye class="w-4 h-4" stroke-width="2.5" />
   </button>
 </template>

@@ -114,3 +114,16 @@ const handleLogout = async () => {
     </div>
   </aside>
 </template>
+
+<style scoped>
+/* Oculta a barra de rolagem para navegadores WebKit (Chrome, Safari, Opera) */
+aside::-webkit-scrollbar {
+  display: none;
+}
+
+/* Oculta a barra de rolagem para IE, Edge e Firefox */
+aside {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

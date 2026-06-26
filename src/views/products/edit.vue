@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { Save, ArrowLeft } from 'lucide-vue-next';
+import Breadcrumb from '../../components/ui/Breadcrumb.vue';
 import Card from '../../components/ui/Card.vue';
 import Button from '../../components/ui/Button.vue';
 import Input from '../../components/ui/Input.vue';
@@ -11,6 +12,11 @@ import { CrudService } from '../../services/crudService';
 import { EnumService } from '../../services/enumService';
 
 const router = useRouter();
+const breadcrumbItems = [
+  { name: 'Produtos', to: '/products' },
+  { name: 'Editar' }
+];
+
 const route = useRoute();
 const apiService = new CrudService('products');
 const purchasesService = new CrudService('purchases');
@@ -65,16 +71,11 @@ const handleSave = async () => {
 
 <template>
   <div>
-        <div class="flex items-center justify-between mb-6">
-      <div class="flex gap-2">
-        <Button variant="secondary" size="sm" @click="router.push('/products')">
-          <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
-          Voltar
-        </Button>
-      </div>
-    </div>
+        
 
-    <Card>
+    <div class="space-y-6">
+    <Breadcrumb :items="breadcrumbItems" />
+    <Card variant="edit">
       <template #header>
         <h2 class="text-lg font-medium text-slate-800">Editar Produto</h2>
       </template>
@@ -90,14 +91,21 @@ const handleSave = async () => {
           <Input v-model="formData.purchase_value" label="Valor de Compra" type="number" />
           <Select v-model="formData.purchase_id" label="Compra" :options="purchasesList" />
         </div>
-        <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+        <div class="pt-4 flex justify-between gap-3 border-t border-slate-100">
+          <Button type="button" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" @click="router.push('/products')">
+            <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
+            Voltar
+          </Button>
+          <div class="flex gap-3">
           <Button variant="danger" type="button" @click="router.push('/products')">Cancelar</Button>
           <Button variant="primary" type="submit" :disabled="isSubmitting">
             <template #icon><Save class="w-4 h-4 mr-2" /></template>
             Atualizar
           </Button>
         </div>
-      </form>
+        </div>
+        </form>
     </Card>
+    </div>
   </div>
 </template>

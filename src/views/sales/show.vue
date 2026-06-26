@@ -17,7 +17,12 @@ const breadcrumbItems = ref([
 const item = ref<any>({});
 const schema = [
   { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Nome' },
+  { key: 'discount', label: 'Desconto' },
+  { key: 'delivery_price', label: 'Frete' },
+  { key: 'user_id', label: 'Usuário ID' },
+  { key: 'updated_by', label: 'Atualizado por' },
+  { key: 'client_id', label: 'Cliente ID' },
+  { key: 'total_value', label: 'Valor Total' },
   { key: 'created_at', label: 'Criado em' },
 ];
 

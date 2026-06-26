@@ -17,7 +17,7 @@ const isSidebarMinimized = ref(false);
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 flex">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-indigo-50/50 flex">
     <!-- Overlay do Sidebar no mobile -->
     <div 
       v-if="isMobileSidebarOpen" 
