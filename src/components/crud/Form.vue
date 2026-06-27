@@ -2,15 +2,15 @@
 import { Save, ArrowLeft } from 'lucide-vue-next';
 import Card from '../ui/Card.vue';
 import Button from '../ui/Button.vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
-
-defineProps<{
-  title: string;
+const props = defineProps<{
+  title?: string;
   isSubmitting: boolean;
   isEdit?: boolean;
+  tabs?: Array<{ id: string; label: string; hasError?: boolean; icon?: string }>;
 }>();
+
+const activeTab = defineModel<string>('activeTab', { default: '' });
 
 const emit = defineEmits<{
   (e: 'submit'): void;
@@ -19,13 +19,16 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <Card :variant="isEdit ? 'edit' : 'create'">
-    <template #header>
+  <Card :variant="isEdit ? 'edit' : 'create'" :tabs="tabs" v-model:activeTab="activeTab">
+    <template #header v-if="title && (!tabs || tabs.length === 0)">
       <h2 class="text-lg font-medium text-slate-800">{{ title }}</h2>
     </template>
 
     <form @submit.prevent="emit('submit')" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div v-if="!tabs || tabs.length === 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <slot></slot>
+      </div>
+      <div v-else>
         <slot></slot>
       </div>
       
