@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import Breadcrumb from '../../components/ui/Breadcrumb.vue';
 import Card from '../../components/ui/Card.vue';
 import Button from '../../components/ui/Button.vue';
-import EditButton from '../../components/ui/EditButton.vue';
 import ShowButton from '../../components/ui/ShowButton.vue';
 import FilterCard from '../../components/crud/FilterCard.vue';
 import Input from '../../components/ui/Input.vue';
@@ -65,7 +64,6 @@ const columns = [
       >
         <template #actions="{ item }">
           <ShowButton :to="`/products/${item.id}`" />
-          <EditButton :to="`/products/${item.id}/edit`" />
         </template>
       </List>
     </Card>
