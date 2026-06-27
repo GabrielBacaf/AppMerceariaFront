@@ -11,7 +11,6 @@ import { showAlert } from '../../utils/alert';
 import { CrudService } from '../../services/crudService';
 import api from '../../services/api';
 
-
 const router = useRouter();
 const breadcrumbItems = [
   { name: 'Clientes', to: '/clients' },
@@ -39,12 +38,16 @@ const formData = ref({
 const locationLink = ref('');
 const isExtracting = ref(false);
 
+const activeTab = ref('basico');
+const clientTabs = ref([
+  { id: 'basico', label: 'Dados Básicos', icon: 'fas fa-user' },
+  { id: 'endereco', label: 'Endereço', icon: 'fas fa-map-marker-alt' }
+]);
+
 const extractLocation = async () => {
   if (!locationLink.value) return;
   const link = locationLink.value;
 
-  // Se já for coordenanda simples, a API do backend vai cuidar também,
-  // mas podemos apenas mandar tudo pro backend resolver (links curtos, URLs, coordenadas).
   isExtracting.value = true;
   try {
     const response = await api.post('/clients/extract-location', { link });
@@ -52,7 +55,6 @@ const extractLocation = async () => {
       formData.value.address.latitude = response.data.latitude;
       formData.value.address.longitude = response.data.longitude;
       
-      // Preencher outros campos se a API de geocodificação retornou
       if (response.data.street) formData.value.address.street = response.data.street;
       if (response.data.number) formData.value.address.number = response.data.number;
       if (response.data.city) formData.value.address.city = response.data.city;
@@ -71,10 +73,9 @@ const extractLocation = async () => {
 
 const isSubmitting = ref(false);
 
-
 const handleSave = async () => {
   isSubmitting.value = true;
-    try {
+  try {
     await apiService.create(formData.value);
     showAlert.success('Cliente criado(a) com sucesso!');
     setTimeout(() => router.push('/clients'), 2000);
@@ -88,54 +89,56 @@ const handleSave = async () => {
 
 <template>
   <div>
-        
-
     <div class="space-y-6">
-    <Breadcrumb :items="breadcrumbItems" />
-    <Card variant="create">
-      <template #header>
-        <h2 class="text-lg font-medium text-slate-800">Novo(a) Cliente</h2>
-      </template>
-
-      <form @submit.prevent="handleSave" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input v-model="formData.name" label="Nome Completo" type="text" />
-          <Input v-model="formData.email" label="E-mail" type="email" />
-          <Input v-model="formData.phone" label="Telefone" type="text" />
-          <Input v-model="formData.address.street" label="Rua" type="text" />
-          <Input v-model="formData.address.number" label="Número" type="text" />
-          <Input v-model="formData.address.complement" label="Complemento" type="text" />
-          <Input v-model="formData.address.city" label="Cidade" type="text" />
-          <Input v-model="formData.address.state" label="Estado" type="text" />
-          <Input v-model="formData.address.postal_code" label="CEP" type="text" />
-          <Input v-model="formData.address.country" label="País" type="text" />
+      <Breadcrumb :items="breadcrumbItems" />
+      
+      <Card variant="create" :tabs="clientTabs" v-model:activeTab="activeTab">
+        <form @submit.prevent="handleSave" class="space-y-6">
           
-          <div class="col-span-1 md:col-span-2 border-t border-slate-100 pt-4 mt-2">
-            <p class="text-sm text-slate-500 mb-4">Se o cliente enviou a localização pelo WhatsApp, cole o link ou as coordenadas abaixo para preencher automaticamente.</p>
-            <div class="flex flex-col gap-2">
-              <Input v-model="locationLink" @input="extractLocation" label="Link ou Coordenadas (WhatsApp/Maps)" type="text" placeholder="Cole o link e aguarde a extração..." :disabled="isExtracting" />
-              <p v-if="isExtracting" class="text-xs text-blue-500 font-medium animate-pulse">Extraindo localização do link, aguarde...</p>
-            </div>
+          <!-- Aba: Dados Básicos -->
+          <div v-show="activeTab === 'basico'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input v-model="formData.name" label="Nome Completo" type="text" />
+            <Input v-model="formData.email" label="E-mail" type="email" />
+            <Input v-model="formData.phone" label="Telefone" type="text" />
           </div>
 
-          <Input v-model="formData.address.latitude" label="Latitude" type="text" />
-          <Input v-model="formData.address.longitude" label="Longitude" type="text" />
-        </div>
-        <div class="pt-4 flex justify-between gap-3 border-t border-slate-100">
-          <Button type="button" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" @click="router.push('/clients')">
-            <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
-            Voltar
-          </Button>
-          <div class="flex gap-3">
-          <Button variant="danger" type="button" @click="router.push('/clients')">Cancelar</Button>
-          <Button variant="primary" type="submit" :disabled="isSubmitting">
-            <template #icon><Save class="w-4 h-4 mr-2" /></template>
-            Salvar
-          </Button>
-        </div>
-        </div>
+          <!-- Aba: Endereço -->
+          <div v-show="activeTab === 'endereco'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input v-model="formData.address.street" label="Rua" type="text" />
+            <Input v-model="formData.address.number" label="Número" type="text" />
+            <Input v-model="formData.address.complement" label="Complemento" type="text" />
+            <Input v-model="formData.address.city" label="Cidade" type="text" />
+            <Input v-model="formData.address.state" label="Estado" type="text" />
+            <Input v-model="formData.address.postal_code" label="CEP" type="text" />
+            <Input v-model="formData.address.country" label="País" type="text" />
+            
+            <div class="col-span-1 md:col-span-2 border-t border-slate-100 pt-4 mt-2">
+              <p class="text-sm text-slate-500 mb-4">Se o cliente enviou a localização pelo WhatsApp, cole o link ou as coordenadas abaixo para preencher automaticamente.</p>
+              <div class="flex flex-col gap-2">
+                <Input v-model="locationLink" @input="extractLocation" label="Link ou Coordenadas (WhatsApp/Maps)" type="text" placeholder="Cole o link e aguarde a extração..." :disabled="isExtracting" />
+                <p v-if="isExtracting" class="text-xs text-blue-500 font-medium animate-pulse">Extraindo localização do link, aguarde...</p>
+              </div>
+            </div>
+
+            <Input v-model="formData.address.latitude" label="Latitude" type="text" />
+            <Input v-model="formData.address.longitude" label="Longitude" type="text" />
+          </div>
+
+          <div class="pt-4 flex justify-between gap-3 border-t border-slate-100">
+            <Button type="button" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" @click="router.push('/clients')">
+              <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
+              Voltar
+            </Button>
+            <div class="flex gap-3">
+              <Button variant="danger" type="button" @click="router.push('/clients')">Cancelar</Button>
+              <Button variant="primary" type="submit" :disabled="isSubmitting">
+                <template #icon><Save class="w-4 h-4 mr-2" /></template>
+                Salvar
+              </Button>
+            </div>
+          </div>
         </form>
-    </Card>
+      </Card>
     </div>
   </div>
 </template>

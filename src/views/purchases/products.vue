@@ -191,6 +191,30 @@ const totalPaid = computed(() => {
   return purchase.value.payments.reduce((sum: number, p: any) => sum + parseFloat(p.value || 0), 0);
 });
 
+// Lógica de Paginação Local (Frontend)
+const currentPage = ref(1);
+const perPage = ref(5);
+
+const paginatedProducts = computed(() => {
+  const products = purchase.value?.products || [];
+  const start = (currentPage.value - 1) * perPage.value;
+  return products.slice(start, start + perPage.value);
+});
+
+const paginationInfo = computed(() => {
+  const total = (purchase.value?.products || []).length;
+  return {
+    current_page: currentPage.value,
+    last_page: Math.ceil(total / perPage.value) || 1,
+    total: total,
+    per_page: perPage.value
+  };
+});
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page;
+};
+
 </script>
 
 <template>
@@ -204,7 +228,7 @@ const totalPaid = computed(() => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <div class="lg:col-span-1">
-        <Card>
+        <Card variant="show" class="h-full">
           <template #header>
             <h2 class="text-lg font-bold text-slate-800">Resumo da Compra</h2>
           </template>
@@ -235,7 +259,7 @@ const totalPaid = computed(() => {
       </div>
 
       <div class="lg:col-span-2">
-        <Card v-if="!isCreatingNewProduct">
+        <Card v-if="!isCreatingNewProduct" variant="list" class="h-full">
           <template #header>
             <div class="flex items-center justify-between w-full">
               <h2 class="text-lg font-bold text-slate-800">Produtos da Compra</h2>
@@ -280,8 +304,10 @@ const totalPaid = computed(() => {
 
           <List
             :columns="productColumns"
-            :data="purchase?.products || []"
+            :data="paginatedProducts"
             :loading="loadingPurchase"
+            :pagination="paginationInfo"
+            @page-change="handlePageChange"
           >
             <template #expiration_date="{ item }">
               {{ item.pivot?.expiration_date ? new Date(item.pivot.expiration_date + 'T00:00:00').toLocaleDateString('pt-BR') : '-' }}
@@ -306,7 +332,7 @@ const totalPaid = computed(() => {
           </List>
         </Card>
 
-        <Card v-else>
+        <Card v-else variant="create" class="h-full">
           <template #header>
             <div class="flex justify-between items-center w-full">
               <h2 class="text-lg font-medium text-slate-800">Cadastrar Novo Produto</h2>
