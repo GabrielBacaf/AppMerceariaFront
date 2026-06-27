@@ -24,7 +24,12 @@ const entityRoutes: RouteRecordRaw[] = entities.flatMap(entity => [
     path: `/${entity}/:id/edit`,
     name: `${entity}-edit`,
     component: () => import(`../views/${entity}/edit.vue`)
-  }
+  },
+  ...(entity === 'purchases' ? [{
+    path: `/${entity}/:id/products`,
+    name: `${entity}-products`,
+    component: () => import(`../views/${entity}/products.vue`)
+  }] : [])
 ])
 
 const router = createRouter({

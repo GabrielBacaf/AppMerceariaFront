@@ -8,8 +8,10 @@ import Button from '../../components/ui/Button.vue';
 import { CrudService } from '../../services/crudService';
 import EditButton from '../../components/ui/EditButton.vue';
 import ShowButton from '../../components/ui/ShowButton.vue';
+import AddProductButton from '../../components/ui/AddProductButton.vue';
 import FilterCard from '../../components/crud/FilterCard.vue';
 import Input from '../../components/ui/Input.vue';
+import List from '../../components/crud/List.vue';
 
 const router = useRouter();
 const apiService = new CrudService('purchases');
@@ -17,31 +19,49 @@ const apiService = new CrudService('purchases');
 const filters = ref({
   search: '',
   date_start: '',
-  date_end: ''
+  date_end: '',
+  page: 1
 });
 
-const handleFilter = () => fetchData();
+const handleFilter = () => {
+  filters.value.page = 1;
+  fetchData();
+};
+
 const handleClear = () => {
-  filters.value = { search: '', date_start: '', date_end: '' };
+  filters.value = { search: '', date_start: '', date_end: '', page: 1 };
+  fetchData();
+};
+
+const handlePageChange = (page: number) => {
+  filters.value.page = page;
   fetchData();
 };
 
 const data = ref<any[]>([]);
 const total = ref(0);
 const loading = ref(false);
+const pagination = ref<any>(null);
 
 const fetchData = async () => {
   loading.value = true;
   try {
     const res = await apiService.getAll(filters.value);
     data.value = Array.isArray(res) ? res : (res.data || []);
-    total.value = Array.isArray(res) ? res.length : (res.total || data.value.length);
+    total.value = Array.isArray(res) ? res.length : (res.meta?.total || data.value.length);
+    pagination.value = Array.isArray(res) ? null : res.meta;
   } catch (error) {
     console.error(error);
   } finally {
     loading.value = false;
   }
 };
+
+const columns = [
+  { key: 'id', label: 'ID' },
+  { key: 'title', label: 'Título' },
+  { key: 'status', label: 'Status' }
+];
 
 onMounted(() => fetchData());
 </script>
@@ -72,41 +92,19 @@ onMounted(() => fetchData());
         </div>
       </template>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-slate-500">
-          <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th scope="col" class="px-6 py-3">ID</th>
-              <th scope="col" class="px-6 py-3">Título</th>
-              <th scope="col" class="px-6 py-3">Status</th>
-              <th scope="col" class="px-6 py-3 text-right" style="width: 200px">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="loading">
-              <td colspan="100" class="px-6 py-4 text-center text-slate-500">Carregando...</td>
-            </tr>
-            <tr v-else-if="data.length === 0">
-               <td colspan="100" class="px-6 py-4 text-center text-slate-500">Nenhum registro encontrado.</td>
-            </tr>
-            <tr v-for="item in data" :key="item.id" class="bg-white border-b hover:bg-slate-50 transition-colors">
-              <td class="px-6 py-4 font-medium text-slate-900">{{ item.id }}</td>
-              <td class="px-6 py-4">{{ item.title }}</td>
-              <td class="px-6 py-4">{{ item.status }}</td>
-              <td class="px-6 py-4 text-right space-x-2">
-                <ShowButton :to="`/purchases/${item.id}`" />
-                <EditButton :to="`/purchases/${item.id}/edit`" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <template #footer>
-        <div class="text-sm text-slate-500 text-center">
-          Exibindo {{ data.length }} de {{ total }} registros
-        </div>
-      </template>
+      <List 
+        :columns="columns" 
+        :data="data" 
+        :loading="loading" 
+        :pagination="pagination"
+        @page-change="handlePageChange"
+      >
+        <template #actions="{ item }">
+          <AddProductButton :to="`/purchases/${item.id}/products`" />
+          <ShowButton :to="`/purchases/${item.id}`" />
+          <EditButton :to="`/purchases/${item.id}/edit`" />
+        </template>
+      </List>
     </Card>
   </div>
 </template>

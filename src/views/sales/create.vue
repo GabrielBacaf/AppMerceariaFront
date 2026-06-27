@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { ShoppingCart, Trash2, Search, Keyboard } from 'lucide-vue-next';
+import { ShoppingCart, Search, Keyboard } from 'lucide-vue-next';
 import { showAlert } from '../../utils/alert';
 import { CrudService } from '../../services/crudService';
 import api from '../../services/api';
+import DeleteButton from '../../components/ui/DeleteButton.vue';
 
 const router = useRouter();
 const apiService = new CrudService('sales');
@@ -122,11 +123,8 @@ const addToCart = (product: any) => {
   });
 };
 
-const removeFromCart = async (index: number) => {
-  const result = await showAlert.confirm('Excluir Produto', 'Tem certeza que deseja remover este item da venda?');
-  if (result.isConfirmed) {
-    cart.value.splice(index, 1);
-  }
+const removeFromCart = (index: number) => {
+  cart.value.splice(index, 1);
 };
 
 const initiateFinalize = () => {
@@ -409,9 +407,7 @@ onUnmounted(() => {
                   <td class="py-3 px-5 text-right font-medium text-slate-600">{{ formatCurrency(item.unit_price) }}</td>
                   <td class="py-3 px-5 text-right font-bold text-blue-700">{{ formatCurrency(item.unit_price * item.quantity) }}</td>
                   <td class="py-3 px-5 text-right">
-                    <button @click="removeFromCart(index)" class="text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all" title="Remover item">
-                      <Trash2 class="w-4 h-4" />
-                    </button>
+                    <DeleteButton @confirm="removeFromCart(index)" confirmText="Tem certeza que deseja remover este item da venda?" />
                   </td>
                 </tr>
                 <tr v-if="cart.length === 0">
@@ -463,9 +459,7 @@ onUnmounted(() => {
                       <td class="py-3 px-4 font-bold text-slate-800">{{ paymentTypes.find(t => t.value === p.payment_type)?.name || p.payment_type }}</td>
                       <td class="py-3 px-4 text-right font-medium text-slate-600">{{ formatCurrency(p.value) }}</td>
                       <td class="py-3 px-4 text-right">
-                        <button @click="removePayment(index)" class="text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all" title="Remover item">
-                          <Trash2 class="w-4 h-4" />
-                        </button>
+                        <DeleteButton @confirm="removePayment(index)" confirmTitle="Remover Pagamento" confirmText="Deseja remover este pagamento?" />
                       </td>
                     </tr>
                     <tr v-if="payments.length === 0">

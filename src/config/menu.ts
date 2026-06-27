@@ -29,7 +29,7 @@ export const menuItems: MenuItem[] = [
     ]
   },
   { 
-    name: 'Compras', 
+    name: 'Dar entrada no Estoque', 
     icon: ShoppingBag, 
     path: '/purchases',
     children: [

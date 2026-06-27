@@ -10,36 +10,56 @@ import EditButton from '../../components/ui/EditButton.vue';
 import ShowButton from '../../components/ui/ShowButton.vue';
 import FilterCard from '../../components/crud/FilterCard.vue';
 import Input from '../../components/ui/Input.vue';
+import List from '../../components/crud/List.vue';
 
 const router = useRouter();
 const apiService = new CrudService('clients');
 
 const filters = ref({
-  search: ''
+  search: '',
+  page: 1
 });
 
-const handleFilter = () => fetchData();
+const handleFilter = () => {
+  filters.value.page = 1;
+  fetchData();
+};
+
 const handleClear = () => {
-  filters.value = { search: '' };
+  filters.value = { search: '', page: 1 };
+  fetchData();
+};
+
+const handlePageChange = (page: number) => {
+  filters.value.page = page;
   fetchData();
 };
 
 const data = ref<any[]>([]);
 const total = ref(0);
 const loading = ref(false);
+const pagination = ref<any>(null);
 
 const fetchData = async () => {
   loading.value = true;
   try {
     const res = await apiService.getAll(filters.value);
     data.value = Array.isArray(res) ? res : (res.data || []);
-    total.value = Array.isArray(res) ? res.length : (res.total || data.value.length);
+    total.value = Array.isArray(res) ? res.length : (res.meta?.total || data.value.length);
+    pagination.value = Array.isArray(res) ? null : res.meta;
   } catch (error) {
     console.error(error);
   } finally {
     loading.value = false;
   }
 };
+
+const columns = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Nome' },
+  { key: 'email', label: 'E-mail' },
+  { key: 'phone', label: 'Telefone' }
+];
 
 onMounted(() => fetchData());
 </script>
@@ -68,43 +88,18 @@ onMounted(() => fetchData());
         </div>
       </template>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead class="text-[13px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th scope="col" class="px-6 py-5">ID</th>
-              <th scope="col" class="px-6 py-5">Nome</th>
-              <th scope="col" class="px-6 py-5">E-mail</th>
-              <th scope="col" class="px-6 py-5">Telefone</th>
-              <th scope="col" class="px-6 py-5 text-right" style="width: 200px">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="loading">
-              <td colspan="100" class="px-6 py-4 text-center text-slate-500">Carregando...</td>
-            </tr>
-            <tr v-else-if="data.length === 0">
-               <td colspan="100" class="px-6 py-4 text-center text-slate-500">Nenhum registro encontrado.</td>
-            </tr>
-            <tr v-for="item in data" :key="item.id" class="bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors">
-              <td class="px-6 py-5 font-bold text-[15px] sm:text-base text-slate-900">{{ item.id }}</td>
-              <td class="px-6 py-5 text-[15px] sm:text-base text-slate-700 font-medium">{{ item.name }}</td>
-              <td class="px-6 py-5 text-[15px] sm:text-base text-slate-700 font-medium">{{ item.email }}</td>
-              <td class="px-6 py-5 text-[15px] sm:text-base text-slate-700 font-medium">{{ item.phone }}</td>
-              <td class="px-6 py-5 text-right space-x-2">
-                <ShowButton :to="`/clients/${item.id}`" />
-                <EditButton :to="`/clients/${item.id}/edit`" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <template #footer>
-        <div class="text-[15px] text-slate-600 text-center font-medium">
-          Exibindo {{ data.length }} de <span class="font-bold text-slate-800">{{ total }}</span> registros
-        </div>
-      </template>
+      <List 
+        :columns="columns" 
+        :data="data" 
+        :loading="loading" 
+        :pagination="pagination"
+        @page-change="handlePageChange"
+      >
+        <template #actions="{ item }">
+          <ShowButton :to="`/clients/${item.id}`" />
+          <EditButton :to="`/clients/${item.id}/edit`" />
+        </template>
+      </List>
     </Card>
   </div>
 </template>
