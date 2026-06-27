@@ -1,11 +1,26 @@
 <script setup lang="ts">
-import { Bell, Search, Menu } from 'lucide-vue-next';
+import { Bell, Menu, Power } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+import { AuthService } from '../../services';
 
 const emit = defineEmits(['toggle-sidebar']);
+const router = useRouter();
+
+const handleLogout = async () => {
+  try {
+    await AuthService.logout();
+  } catch (error) {
+    console.error('Erro ao deslogar da API:', error);
+  } finally {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    router.push('/login');
+  }
+};
 </script>
 
 <template>
-  <header class="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm shadow-indigo-900/5 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10 w-full">
+  <header class="w-full h-20 bg-white/60 backdrop-blur-xl border-b border-slate-200/80 shadow-lg shadow-primary-500/15 rounded-b-2xl flex items-center justify-between px-4 md:px-8 sticky top-0 z-10 transition-all">
     <div class="flex items-center gap-4">
       <button @click="emit('toggle-sidebar')" class="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none">
         <Menu class="w-6 h-6" />
@@ -16,19 +31,31 @@ const emit = defineEmits(['toggle-sidebar']);
     </div>
 
     <div class="flex items-center gap-4 md:gap-6">
-      <div class="relative hidden sm:block">
-        <Search class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input 
-          type="text" 
-          placeholder="Pesquisar..." 
-          class="pl-10 pr-4 py-2 bg-slate-100 border-transparent focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 rounded-lg text-sm w-48 md:w-64 transition-all outline-none"
-        />
-      </div>
-      
+      <!-- Notificações -->
       <button class="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors focus:outline-none">
         <Bell class="w-5 h-5" />
         <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
       </button>
+
+      <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+      
+      <!-- Usuário e Logout -->
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <p class="text-sm font-medium text-slate-800 leading-none">Gabriel Bacaf</p>
+          <p class="text-xs text-slate-500 mt-1">Admin</p>
+        </div>
+        <div class="w-9 h-9 shrink-0 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
+          GB
+        </div>
+        <button 
+          @click="handleLogout" 
+          title="Sair do Sistema" 
+          class="bg-slate-800 text-white hover:bg-slate-700 shadow-md shadow-slate-800/20 p-2 rounded-xl transition-all focus:outline-none ml-2"
+        >
+          <Power class="w-5 h-5" />
+        </button>
+      </div>
     </div>
   </header>
 </template>

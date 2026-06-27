@@ -9,69 +9,34 @@ export interface MenuItem {
 }
 
 export const menuItems: MenuItem[] = [
-  { name: 'Dashboard', icon: Home, path: '/' },
-  { 
-    name: 'Produtos', 
-    icon: Package, 
-    path: '/products',
-    children: [
-      { name: 'Cadastrar Produto', path: '/products/create' },
-      { name: 'Listar Produtos', path: '/products' },
-    ]
-  },
+  { name: 'Home', icon: Home, path: '/' },
   { 
     name: 'Vendas', 
     icon: ShoppingCart, 
-    path: '/sales',
-    children: [
-      { name: 'Nova Venda', path: '/sales/create' },
-      { name: 'Listar Vendas', path: '/sales' },
-    ]
+    path: '/sales'
   },
   { 
-    name: 'Dar entrada no Estoque', 
-    icon: ShoppingBag, 
-    path: '/purchases',
+    name: 'Estoque', 
+    icon: Package, 
+    path: '',
     children: [
-      { name: 'Nova Compra', path: '/purchases/create' },
-      { name: 'Listar Compras', path: '/purchases' },
+      { name: 'Produtos', path: '/products' },
+      { name: 'Compras', path: '/purchases' },
+      { name: 'Fornecedores', path: '/suppliers' },
     ]
   },
   { 
     name: 'Clientes', 
     icon: Users, 
-    path: '/clients',
-    children: [
-      { name: 'Novo Cliente', path: '/clients/create' },
-      { name: 'Listar Clientes', path: '/clients' },
-    ]
+    path: '/clients'
   },
   { 
-    name: 'Fornecedores', 
-    icon: Truck, 
-    path: '/suppliers',
+    name: 'Configurações', 
+    icon: Settings, 
+    path: '',
     children: [
-      { name: 'Novo Fornecedor', path: '/suppliers/create' },
-      { name: 'Listar Fornecedores', path: '/suppliers' },
+      { name: 'Usuários', path: '/users' },
+      { name: 'Perfis de Acesso', path: '/roles' },
     ]
   },
-  { 
-    name: 'Usuários', 
-    icon: UserCog, 
-    path: '/users',
-    children: [
-      { name: 'Novo Usuário', path: '/users/create' },
-      { name: 'Listar Usuários', path: '/users' },
-    ]
-  },
-  { 
-    name: 'Perfis de Acesso', 
-    icon: Shield, 
-    path: '/roles',
-    children: [
-      { name: 'Novo Perfil', path: '/roles/create' },
-      { name: 'Listar Perfis', path: '/roles' },
-    ]
-  },
-  { name: 'Configurações', icon: Settings, path: '/' },
 ];

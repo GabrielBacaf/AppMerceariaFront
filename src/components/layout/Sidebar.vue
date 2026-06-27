@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { ShoppingCart, X, Menu, LogOut } from 'lucide-vue-next';
+import { ShoppingCart, X, Menu, Search } from 'lucide-vue-next';
 import SidebarItem from './SidebarItem.vue';
 import { menuItems } from '../../config/menu';
-import { AuthService } from '../../services';
 
 interface Props {
   isOpen?: boolean;
@@ -17,7 +15,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits(['close', 'toggle-minimize']);
-const router = useRouter();
 
 // Estado para menus abertos (submenus)
 const openMenus = ref<string[]>([]);
@@ -36,23 +33,11 @@ const toggleMenu = (name: string) => {
     openMenus.value.push(name);
   }
 };
-
-const handleLogout = async () => {
-  try {
-    await AuthService.logout();
-  } catch (error) {
-    console.error('Erro ao deslogar da API:', error);
-  } finally {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-    router.push('/login');
-  }
-};
 </script>
 
 <template>
   <aside 
-    class="bg-slate-900 text-slate-300 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto overflow-x-hidden z-30 transition-all duration-300 ease-in-out lg:translate-x-0 group/sidebar"
+    class="bg-slate-900 text-slate-300 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto overflow-x-hidden z-30 transition-all duration-300 ease-in-out lg:translate-x-0 group/sidebar rounded-r-2xl shadow-xl shadow-primary-500/15"
     :class="[
       isOpen ? 'translate-x-0' : '-translate-x-full',
       isMinimized ? 'w-20' : 'w-64'
@@ -79,6 +64,14 @@ const handleLogout = async () => {
     </div>
     
     <nav class="flex-1 py-4 px-3 space-y-1 overflow-x-hidden">
+      <!-- Barra de pesquisa -->
+      <div class="mb-4 px-1" :class="isMinimized ? 'hidden' : 'block'">
+        <div class="relative">
+          <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input type="text" placeholder="Pesquisar..." class="w-full pl-9 pr-3 py-2 bg-slate-800 text-slate-300 border-transparent focus:bg-slate-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 rounded-lg text-sm transition-all outline-none placeholder-slate-500" />
+        </div>
+      </div>
+
       <SidebarItem
         v-for="item in menuItems"
         :key="item.name"
@@ -89,29 +82,6 @@ const handleLogout = async () => {
         @close="emit('close')"
       />
     </nav>
-
-    <!-- Usuário Rodapé -->
-    <div class="p-4 border-t border-slate-800 shrink-0">
-      <div class="flex items-center justify-between px-2 lg:px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors overflow-hidden">
-        <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" :class="isMinimized ? 'justify-center' : ''">
-          <div class="w-8 h-8 shrink-0 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold text-sm">
-            GB
-          </div>
-          <div class="flex-1 min-w-0 transition-opacity duration-300" :class="isMinimized ? 'opacity-0 w-0 hidden' : 'opacity-100'">
-            <p class="text-sm font-medium text-white truncate">Gabriel Bacaf</p>
-            <p class="text-xs text-slate-400 truncate">Admin</p>
-          </div>
-        </div>
-        <button 
-          @click="handleLogout" 
-          title="Sair do Sistema"
-          class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-700 transition-colors shrink-0"
-          :class="isMinimized ? 'hidden' : 'block'"
-        >
-          <LogOut class="w-5 h-5" />
-        </button>
-      </div>
-    </div>
   </aside>
 </template>
 
