@@ -1,38 +1,33 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { Save, ArrowLeft } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
 import Breadcrumb from '../../components/ui/Breadcrumb.vue';
-import Card from '../../components/ui/Card.vue';
-import Button from '../../components/ui/Button.vue';
+import Form from '../../components/crud/Form.vue';
 import Input from '../../components/ui/Input.vue';
 import Select from '../../components/ui/Select.vue';
-import { showAlert } from '../../utils/alert';
+import { useCrudForm } from '../../composables/useCrudForm';
 import { CrudService } from '../../services/crudService';
 import { EnumService } from '../../services/enumService';
 
-const router = useRouter();
+const route = useRoute();
 const breadcrumbItems = [
   { name: 'Compras', to: '/purchases' },
   { name: 'Editar' }
 ];
 
-const route = useRoute();
-const apiService = new CrudService('purchases');
+const { isSubmitting, handleSave, handleLoad, handleCancel } = useCrudForm('purchases', '/purchases');
 const suppliersService = new CrudService('suppliers');
 
 const formData = ref({
   title: '',
   description: '',
   purchase_date: '',
-  supplier_id: null,
-  invoice_id: null,
+  supplier_id: null as number | null,
+  invoice_id: null as number | null,
   payments: [
     { value: 0, payment_type: '', payment_status: '' }
   ]
 });
-
-const isSubmitting = ref(false);
 
 const enums = ref<any>({ payment_types: [], payment_statuses: [] });
 const suppliers = ref<any[]>([]);
@@ -48,62 +43,49 @@ onMounted(async () => {
       value: s.id
     }));
     
-    const data = await apiService.getById(route.params.id as string);
-    
-    // Merge basic fields
-    formData.value.title = data.title || '';
-    formData.value.description = data.description || '';
-    formData.value.purchase_date = data.purchase_date || '';
-    formData.value.supplier_id = data.supplier_id || null;
-    formData.value.invoice_id = data.invoice_id || null;
-    
-    // Safely assign payments if exist
-    if (data.payments && data.payments.length > 0) {
-      formData.value.payments = data.payments;
+    const data = await handleLoad(route.params.id as string);
+    if (data) {
+      formData.value.title = data.title || '';
+      formData.value.description = data.description || '';
+      formData.value.purchase_date = data.purchase_date || '';
+      formData.value.supplier_id = data.supplier_id || null;
+      formData.value.invoice_id = data.invoice_id || null;
+      
+      if (data.payments && data.payments.length > 0) {
+        formData.value.payments = data.payments;
+      }
     }
   } catch (error) {
-    showAlert.error('Erro ao carregar dados.');
+    console.error('Erro ao carregar dados.', error);
   }
 });
 
-const handleSave = async () => {
-  isSubmitting.value = true;
-    try {
-    const payload: any = { ...formData.value };
-    if (!payload.invoice_id) delete payload.invoice_id;
-    if (!payload.supplier_id) delete payload.supplier_id;
-
-    await apiService.update(route.params.id as string, payload);
-    showAlert.success('Compra atualizada com sucesso!');
-    setTimeout(() => router.push('/purchases'), 2000);
-  } catch (error: any) {
-    showAlert.error(error);
-  } finally {
-    isSubmitting.value = false;
-  }
+const submit = () => {
+  const payload: any = { ...formData.value };
+  if (!payload.invoice_id) delete payload.invoice_id;
+  if (!payload.supplier_id) delete payload.supplier_id;
+  handleSave(payload, true, route.params.id as string);
 };
 </script>
 
 <template>
-  <div>
-        
-
-    <div class="space-y-6">
+  <div class="space-y-6">
     <Breadcrumb :items="breadcrumbItems" />
-    <Card variant="edit">
-      <template #header>
-        <h2 class="text-lg font-medium text-slate-800">Editar Compra</h2>
-      </template>
-
-      <form @submit.prevent="handleSave" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input v-model="formData.title" label="Título" type="text" />
-          <Input v-model="formData.description" label="Descrição" type="text" />
-          <Input v-model="formData.purchase_date" label="Data da Compra" type="date" />
-          <Select v-model="formData.supplier_id" label="Fornecedor" :options="suppliers" />
-          <Input v-model="formData.invoice_id" label="Nota" type="number" />
-        </div>
-
+    
+    <Form 
+      title="Editar Compra" 
+      :is-submitting="isSubmitting" 
+      is-edit
+      @submit="submit" 
+      @cancel="handleCancel"
+    >
+      <Input v-model="formData.title" label="Título" type="text" />
+      <Input v-model="formData.description" label="Descrição" type="text" />
+      <Input v-model="formData.purchase_date" label="Data da Compra" type="date" />
+      <Select v-model="formData.supplier_id" label="Fornecedor" :options="suppliers" />
+      <Input v-model="formData.invoice_id" label="Nota" type="number" />
+      
+      <template #full-width>
         <div class="mt-6" v-for="(payment, index) in formData.payments" :key="index">
           <h3 class="text-md font-medium text-slate-700 mb-4 border-b pb-2">Informações de Pagamento</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -112,22 +94,7 @@ const handleSave = async () => {
             <Select v-model="payment.payment_status" label="Status do Pagamento" :options="enums.payment_statuses" />
           </div>
         </div>
-
-        <div class="pt-4 flex justify-between gap-3 border-t border-slate-100">
-          <Button type="button" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" @click="router.push('/purchases')">
-            <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
-            Voltar
-          </Button>
-          <div class="flex gap-3">
-          <Button variant="danger" type="button" @click="router.push('/purchases')">Cancelar</Button>
-          <Button variant="primary" type="submit" :disabled="isSubmitting">
-            <template #icon><Save class="w-4 h-4 mr-2" /></template>
-            Atualizar
-          </Button>
-        </div>
-        </div>
-        </form>
-    </Card>
-    </div>
+      </template>
+    </Form>
   </div>
 </template>
