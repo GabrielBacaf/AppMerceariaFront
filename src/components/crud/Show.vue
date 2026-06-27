@@ -69,9 +69,9 @@ watch(computedGroups, (newGroups) => {
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl border-t-4 border-t-purple-500 border-x border-b border-slate-200 shadow-md shadow-purple-900/5 overflow-hidden">
+  <div class="bg-white rounded-2xl border-t-4 border-t-indigo-500 border-x border-b border-slate-200 shadow-md shadow-indigo-900/5 overflow-hidden">
     <!-- Header with Title -->
-    <div class="px-6 sm:px-10 py-7 bg-gradient-to-r from-purple-50/40 to-transparent border-b border-slate-200">
+    <div class="px-6 sm:px-10 py-7 bg-gradient-to-r from-indigo-50/40 to-transparent border-b border-slate-200">
       <h3 v-if="title" class="text-2xl font-bold text-slate-900 tracking-tight">{{ title }}</h3>
     </div>
     
