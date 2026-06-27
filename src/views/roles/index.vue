@@ -38,7 +38,7 @@ const columns = [
       <Input v-model="filters.search" label="Buscar" placeholder="Nome..." />
     </FilterCard>
 
-    <Card noPadding>
+    <Card noPadding variant="list">
       <template #header>
         <div class="flex items-center gap-3">
           <h1 class="text-xl font-bold text-slate-800">Lista de Perfis</h1>

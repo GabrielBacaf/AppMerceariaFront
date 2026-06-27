@@ -7,7 +7,7 @@ const props = defineProps({
     default: false
   },
   variant: {
-    type: String, // 'create' | 'edit' | 'default'
+    type: String, // 'create' | 'edit' | 'show' | 'filter' | 'list' | 'default'
     default: 'default'
   }
 });
@@ -15,6 +15,9 @@ const props = defineProps({
 const borderClasses = computed(() => {
   if (props.variant === 'create') return 'border-t-4 border-t-primary-500 shadow-md shadow-primary-900/5';
   if (props.variant === 'edit') return 'border-t-4 border-t-emerald-500 shadow-md shadow-emerald-900/5';
+  if (props.variant === 'show') return 'border-t-4 border-t-indigo-500 shadow-md shadow-indigo-900/5';
+  if (props.variant === 'filter') return 'border-t-4 border-t-blue-500 shadow-md shadow-blue-900/5';
+  if (props.variant === 'list') return 'border-t-4 border-t-cyan-500 shadow-md shadow-cyan-900/5';
   return '';
 });
 </script>

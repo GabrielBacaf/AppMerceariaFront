@@ -14,6 +14,14 @@ withDefaults(defineProps<Props>(), {
 
 const isMobileSidebarOpen = ref(false);
 const isSidebarMinimized = ref(false);
+
+const handleSidebarClose = () => {
+  if (window.innerWidth >= 1024) {
+    isSidebarMinimized.value = true;
+  } else {
+    isMobileSidebarOpen.value = false;
+  }
+};
 </script>
 
 <template>
@@ -28,7 +36,7 @@ const isSidebarMinimized = ref(false);
     <Sidebar 
       :isOpen="isMobileSidebarOpen" 
       :isMinimized="isSidebarMinimized"
-      @close="isMobileSidebarOpen = false" 
+      @close="handleSidebarClose" 
       @toggle-minimize="isSidebarMinimized = !isSidebarMinimized"
     />
     
@@ -37,7 +45,7 @@ const isSidebarMinimized = ref(false);
       class="flex-1 flex flex-col min-h-screen transition-all duration-300 w-full overflow-x-hidden"
       :class="isSidebarMinimized ? 'lg:ml-20' : 'lg:ml-64'"
     >
-      <Header @toggle-sidebar="isMobileSidebarOpen = true">
+      <Header @toggle-sidebar="isMobileSidebarOpen = true; isSidebarMinimized = false">
         <template #title>{{ title }}</template>
       </Header>
       
