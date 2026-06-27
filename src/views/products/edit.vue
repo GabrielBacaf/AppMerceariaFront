@@ -1,24 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { Save, ArrowLeft } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
 import Breadcrumb from '../../components/ui/Breadcrumb.vue';
-import Card from '../../components/ui/Card.vue';
-import Button from '../../components/ui/Button.vue';
+import Form from '../../components/crud/Form.vue';
 import Input from '../../components/ui/Input.vue';
 import Select from '../../components/ui/Select.vue';
-import { showAlert } from '../../utils/alert';
+import { useCrudForm } from '../../composables/useCrudForm';
 import { CrudService } from '../../services/crudService';
 import { EnumService } from '../../services/enumService';
 
-const router = useRouter();
+const route = useRoute();
 const breadcrumbItems = [
   { name: 'Produtos', to: '/products' },
   { name: 'Editar' }
 ];
 
-const route = useRoute();
-const apiService = new CrudService('products');
+const { isSubmitting, handleSave, handleLoad, handleCancel } = useCrudForm('products', '/products');
 const purchasesService = new CrudService('purchases');
 
 const formData = ref({
@@ -29,10 +26,8 @@ const formData = ref({
   sale_value: 0,
   amount: 0,
   purchase_value: 0,
-  purchase_id: null
+  purchase_id: null as number | null
 });
-
-const isSubmitting = ref(false);
 
 const enums = ref<any>({ categories: [] });
 const purchasesList = ref<any[]>([]);
@@ -48,64 +43,37 @@ onMounted(async () => {
       value: p.id
     }));
     
-    const data = await apiService.getById(route.params.id as string);
-    formData.value = { ...formData.value, ...data };
+    const data = await handleLoad(route.params.id as string);
+    if (data) {
+      formData.value = { ...formData.value, ...data };
+    }
   } catch (error) {
-    showAlert.error('Erro ao carregar dados.');
+    console.error('Erro ao carregar dados.', error);
   }
 });
 
-const handleSave = async () => {
-  isSubmitting.value = true;
-    try {
-    await apiService.update(route.params.id as string, formData.value);
-    showAlert.success('Produto atualizado(a) com sucesso!');
-    setTimeout(() => router.push('/products'), 2000);
-  } catch (error: any) {
-    showAlert.error(error);
-  } finally {
-    isSubmitting.value = false;
-  }
-};
+const submit = () => handleSave(formData.value, true, route.params.id as string);
 </script>
 
 <template>
-  <div>
-        
-
-    <div class="space-y-6">
+  <div class="space-y-6">
     <Breadcrumb :items="breadcrumbItems" />
-    <Card variant="edit">
-      <template #header>
-        <h2 class="text-lg font-medium text-slate-800">Editar Produto</h2>
-      </template>
-
-      <form @submit.prevent="handleSave" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input v-model="formData.name" label="Nome" type="text" />
-          <Input v-model="formData.barcode" label="Código de Barras" type="text" />
-          <Input v-model="formData.expiration_date" label="Data de Validade" type="date" />
-          <Select v-model="formData.category" label="Categoria" :options="enums.categories" />
-          <Input v-model="formData.sale_value" label="Valor de Venda" type="number" />
-          <Input v-model="formData.amount" label="Quantidade (Amount)" type="number" />
-          <Input v-model="formData.purchase_value" label="Valor de Compra" type="number" />
-          <Select v-model="formData.purchase_id" label="Compra" :options="purchasesList" />
-        </div>
-        <div class="pt-4 flex justify-between gap-3 border-t border-slate-100">
-          <Button type="button" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" @click="router.push('/products')">
-            <template #icon><ArrowLeft class="w-4 h-4 mr-2" /></template>
-            Voltar
-          </Button>
-          <div class="flex gap-3">
-          <Button variant="danger" type="button" @click="router.push('/products')">Cancelar</Button>
-          <Button variant="primary" type="submit" :disabled="isSubmitting">
-            <template #icon><Save class="w-4 h-4 mr-2" /></template>
-            Atualizar
-          </Button>
-        </div>
-        </div>
-        </form>
-    </Card>
-    </div>
+    
+    <Form 
+      title="Editar Produto" 
+      :is-submitting="isSubmitting" 
+      is-edit
+      @submit="submit" 
+      @cancel="handleCancel"
+    >
+      <Input v-model="formData.name" label="Nome" type="text" />
+      <Input v-model="formData.barcode" label="Código de Barras" type="text" />
+      <Input v-model="formData.expiration_date" label="Data de Validade" type="date" />
+      <Select v-model="formData.category" label="Categoria" :options="enums.categories" />
+      <Input v-model="formData.sale_value" label="Valor de Venda" type="number" />
+      <Input v-model="formData.amount" label="Quantidade (Amount)" type="number" />
+      <Input v-model="formData.purchase_value" label="Valor de Compra" type="number" />
+      <Select v-model="formData.purchase_id" label="Compra" :options="purchasesList" />
+    </Form>
   </div>
 </template>

@@ -1,69 +1,35 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { Plus } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import Breadcrumb from '../../components/ui/Breadcrumb.vue';
 import Card from '../../components/ui/Card.vue';
 import Button from '../../components/ui/Button.vue';
-import { CrudService } from '../../services/crudService';
 import EditButton from '../../components/ui/EditButton.vue';
 import ShowButton from '../../components/ui/ShowButton.vue';
 import AddProductButton from '../../components/ui/AddProductButton.vue';
 import FilterCard from '../../components/crud/FilterCard.vue';
 import Input from '../../components/ui/Input.vue';
 import List from '../../components/crud/List.vue';
+import { useCrudList } from '../../composables/useCrudList';
 
 const router = useRouter();
-const apiService = new CrudService('purchases');
 
-const filters = ref({
-  search: '',
-  date_start: '',
-  date_end: '',
-  page: 1
-});
-
-const handleFilter = () => {
-  filters.value.page = 1;
-  fetchData();
-};
-
-const handleClear = () => {
-  filters.value = { search: '', date_start: '', date_end: '', page: 1 };
-  fetchData();
-};
-
-const handlePageChange = (page: number) => {
-  filters.value.page = page;
-  fetchData();
-};
-
-const data = ref<any[]>([]);
-const total = ref(0);
-const loading = ref(false);
-const pagination = ref<any>(null);
-
-const fetchData = async () => {
-  loading.value = true;
-  try {
-    const res = await apiService.getAll(filters.value);
-    data.value = Array.isArray(res) ? res : (res.data || []);
-    total.value = Array.isArray(res) ? res.length : (res.meta?.total || data.value.length);
-    pagination.value = Array.isArray(res) ? null : res.meta;
-  } catch (error) {
-    console.error(error);
-  } finally {
-    loading.value = false;
-  }
-};
+const {
+  filters,
+  data,
+  total,
+  loading,
+  pagination,
+  handleFilter,
+  handleClear,
+  handlePageChange
+} = useCrudList('purchases', { search: '', date_start: '', date_end: '', page: 1 });
 
 const columns = [
   { key: 'id', label: 'ID' },
   { key: 'title', label: 'Título' },
   { key: 'status', label: 'Status' }
 ];
-
-onMounted(() => fetchData());
 </script>
 
 <template>
