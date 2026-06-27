@@ -7,7 +7,7 @@ interface Option {
 }
 
 interface Props {
-  modelValue?: string | number;
+  modelValue?: string | number | null;
   label?: string;
   options?: Option[];
   error?: string;

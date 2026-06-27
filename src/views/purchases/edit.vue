@@ -104,12 +104,12 @@ const handleSave = async () => {
           <Input v-model="formData.invoice_id" label="Nota" type="number" />
         </div>
 
-        <div class="mt-6">
+        <div class="mt-6" v-for="(payment, index) in formData.payments" :key="index">
           <h3 class="text-md font-medium text-slate-700 mb-4 border-b pb-2">Informações de Pagamento</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input v-model="formData.payments[0].value" label="Valor" type="number" />
-            <Select v-model="formData.payments[0].payment_type" label="Tipo de Pagamento" :options="enums.payment_types" />
-            <Select v-model="formData.payments[0].payment_status" label="Status do Pagamento" :options="enums.payment_statuses" />
+            <Input v-model="payment.value" label="Valor" type="number" />
+            <Select v-model="payment.payment_type" label="Tipo de Pagamento" :options="enums.payment_types" />
+            <Select v-model="payment.payment_status" label="Status do Pagamento" :options="enums.payment_statuses" />
           </div>
         </div>
 

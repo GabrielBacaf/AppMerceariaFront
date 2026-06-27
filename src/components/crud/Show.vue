@@ -97,16 +97,16 @@ watch(computedGroups, (newGroups) => {
 
       <!-- Tab Content -->
       <div class="px-0 py-0">
-        <template v-if="computedGroups[activeTabIndex].customSlot">
+        <template v-if="computedGroups[activeTabIndex]?.customSlot">
           <div class="p-0">
-            <slot :name="computedGroups[activeTabIndex].customSlot" :item="item"></slot>
+            <slot :name="computedGroups[activeTabIndex]?.customSlot" :item="item"></slot>
           </div>
         </template>
         
-        <template v-else-if="computedGroups[activeTabIndex].fields">
+        <template v-else-if="computedGroups[activeTabIndex]?.fields">
           <dl class="divide-y divide-slate-100">
             <div 
-              v-for="field in computedGroups[activeTabIndex].fields" 
+              v-for="field in computedGroups[activeTabIndex]?.fields" 
               :key="field.key" 
               class="flex flex-col sm:flex-row px-6 sm:px-10 py-5 sm:py-6 hover:bg-slate-50/80 transition-colors duration-150 group-row"
             >
