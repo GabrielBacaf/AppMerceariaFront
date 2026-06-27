@@ -10,14 +10,14 @@ defineProps<{
   <RouterLink 
     v-if="to"
     :to="to" 
-    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-amber-500 bg-amber-500 text-white hover:bg-amber-600 hover:border-amber-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
     title="Editar"
   >
     <Pencil class="w-4 h-4" stroke-width="2.5" />
   </RouterLink>
   <button 
     v-else
-    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+    class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-amber-500 bg-amber-500 text-white hover:bg-amber-600 hover:border-amber-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
     title="Editar"
   >
     <Pencil class="w-4 h-4" stroke-width="2.5" />
