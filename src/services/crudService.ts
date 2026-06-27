@@ -3,10 +3,9 @@ import api from './api';
 export class CrudService<T = any, CreateDTO = any, UpdateDTO = any> {
   constructor(public resource: string) {}
 
-  async getAll(params?: Record<string, any>): Promise<T[]> {
+  async getAll(params?: Record<string, any>): Promise<any> {
     const response = await api.get(`/${this.resource}`, { params });
-    // Laravel API resources usually wrap collections in a 'data' property
-    return response.data.data ? response.data.data : response.data;
+    return response.data;
   }
 
   async getById(id: string | number): Promise<T> {
